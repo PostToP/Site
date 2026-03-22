@@ -10,10 +10,10 @@ type ProgressStat = {
     description: string;
     href: string;
     data: {
-        reviewed: string;
-        predicted: string;
+        reviewed: number;
+        predicted: number;
     };
-    total: string;
+    total: number;
 };
 
 function ProgressCard({label, description, href, data, total}: ProgressStat) {
@@ -81,21 +81,21 @@ export default function Page() {
                 description: "Human verification of music videos",
                 href: "/admin/music",
                 data: stats.is_music,
-                total: stats.totalVideos,
+                total: Number(stats.totalVideos),
             },
             {
                 label: "Genre Review",
                 description: "Assign genres to verified music",
                 href: "/admin/genre",
                 data: stats.genres,
-                total: stats.musicVideos,
+                total: Number(stats.musicVideos),
             },
             {
                 label: "NER Review",
                 description: "Tag entities in titles and descriptions",
                 href: "/admin/ner",
                 data: stats.ner,
-                total: stats.musicVideos,
+                total: Number(stats.musicVideos),
             },
         ];
     }, [stats]);
