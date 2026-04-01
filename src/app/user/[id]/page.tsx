@@ -49,7 +49,7 @@ export default function UserPage() {
                 <div className="col-span-12">
                     <ProfileUser user_handle={id} />
                 </div>
-                <div className="col-span-12 md:col-span-8 max-h-72">
+                <div className="col-span-12 md:col-span-8 md:max-h-72">
                     <CurrentlyListeningCard user_handle={id} />
                 </div>
                 <div className="col-span-12 md:col-span-4 md:row-span-2">
@@ -70,7 +70,6 @@ export default function UserPage() {
                         <div>
                             <ListenedGraph user_handle={id} dateRange={dateRange} />
                         </div>
-                        <span className="text-text-secondary hover:underline">View more ➤</span>
                     </Card>
                 </div>
                 <div className="col-span-12 md:col-span-8">
