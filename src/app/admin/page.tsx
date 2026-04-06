@@ -3,6 +3,7 @@
 import Link from "next/link";
 import {useEffect, useMemo, useState} from "react";
 import Card from "@/components/Card/Card";
+import AdminBackend from "@/utils/Backend/AdminBackend";
 import ServerBackend, {type Data} from "@/utils/Backend/ServerBackend";
 
 type ProgressStat = {
@@ -55,10 +56,17 @@ function ProgressCard({label, description, href, data, total}: ProgressStat) {
     );
 }
 
+type AdminActivity = {
+    username: string;
+    created_at: Date;
+    title: string;
+} & ({genres: string[]} | {ner_result: any} | {is_music: boolean});
+
 export default function Page() {
     const [stats, setStats] = useState<Data | null>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
+    const [activity, setActivity] = useState<AdminActivity[]>([]);
 
     useEffect(() => {
         ServerBackend.getStats()
@@ -71,6 +79,15 @@ export default function Page() {
             })
             .catch(() => setError("Failed to load stats"))
             .finally(() => setLoading(false));
+        AdminBackend.getAdminActivity()
+            .then(res => {
+                if (!res.ok) {
+                    console.error("Failed to load admin activity:", res.error);
+                    return;
+                }
+                setActivity(res.data.data);
+            })
+            .catch(err => console.error("Failed to load admin activity:", err));
     }, []);
 
     const progressCards = useMemo<ProgressStat[]>(() => {
@@ -130,6 +147,52 @@ export default function Page() {
                     ))}
                 </div>
             )}
+            <div>
+                <h2 className="text-xl font-medium">Recent Admin Activity</h2>
+                {activity.length === 0 ? (
+                    <p className="text-sm text-text-secondary">No recent activity.</p>
+                ) : (
+                    <div className="mt-4 max-h-[420px] overflow-y-auto pr-1">
+                        <ul className="space-y-2">
+                            {activity.map((act, idx) => (
+                                <li key={idx} className="rounded-lg border border-border p-3">
+                                    <p className="text-sm">
+                                        <span className="font-medium">{act.username}</span> reviewed{" "}
+                                        <span className="font-medium">{act.title}</span>
+                                    </p>
+
+                                    <p className="text-xs text-text-secondary">
+                                        {(() => {
+                                            if ("ner_result" in act) {
+                                                const entities = Array.isArray(act.ner_result)
+                                                    ? act.ner_result.length
+                                                    : act.ner_result && typeof act.ner_result === "object"
+                                                      ? Object.keys(act.ner_result).length
+                                                      : 0;
+                                                return `NER entities: ${entities}`;
+                                            }
+
+                                            if ("is_music" in act) {
+                                                return `Music review result: ${act.is_music ? "Music" : "Not music"}`;
+                                            }
+
+                                            if ("genres" in act) {
+                                                return `Genre review result: ${act.genres.length ? act.genres.join(", ") : "No genres"}`;
+                                            }
+
+                                            return "";
+                                        })()}
+                                    </p>
+
+                                    <p className="text-xs text-text-secondary">
+                                        {new Date(act.created_at).toLocaleString()}
+                                    </p>
+                                </li>
+                            ))}
+                        </ul>
+                    </div>
+                )}
+            </div>
         </main>
     );
 }

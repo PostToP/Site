@@ -57,4 +57,8 @@ export default class AdminBackend extends Backend {
     static async getAIPrediction(payload: AIPredictionPayload): Promise<any> {
         return AdminBackend.GET("/ai/ner", payload);
     }
+
+    static async getAdminActivity(): Promise<BackendResponse<any>> {
+        return AdminBackend.GET("/admin/activity-logs");
+    }
 }
